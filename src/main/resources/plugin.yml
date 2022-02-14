@@ -1,0 +1,7 @@
+name: RPGPlugin
+main: com.lalala1235.rpgproject.Main
+version: 1.0-SNAPSHOT
+
+commands:
+  test:
+

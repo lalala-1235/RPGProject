@@ -13,7 +13,11 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerChangedMainHandEvent
+import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
 class EventListeners: Listener {
     @EventHandler
@@ -73,5 +77,29 @@ class EventListeners: Listener {
         PDCManipulation.setTagString(e.player, "isCustomPlayer", "true")
         PDCManipulation.setTagDouble(e.player, "infoBaseDamage", 1.0)
         PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
+    }
+
+    @EventHandler
+    fun onPlayerChangeItem(e: PlayerItemHeldEvent) {
+        println("test1111")
+
+        val item = e.player.inventory.getItem(e.newSlot) ?: return
+
+        if(PDCManipulation.getTagString(item, "isCustomItem")!="true") {
+            println("test2222")
+            PDCManipulation.setTagDouble(e.player, "infoBaseDamage", 1.0)
+            PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
+        } else {
+            println(PDCManipulation.getTagDouble(item, "weaponStr"))
+            println(PDCManipulation.getTagDouble(item, "weaponDmg"))
+            val str = PDCManipulation.getTagDouble(item, "weaponStr") ?: return
+            val dmg = PDCManipulation.getTagDouble(item, "weaponDmg") ?: return
+
+            println("test3333")
+
+            PDCManipulation.setTagDouble(e.player, "infoBaseDamage", dmg)
+            PDCManipulation.setTagDouble(e.player, "infoStr", 100.0 + str)
+        }
+
     }
 }

@@ -1,7 +1,5 @@
 package com.lalala1235.rpgproject.utils
 
-import kotlin.math.log2
-
 class DamageCalculator {
     companion object {
         fun getDamage(baseDmg: Double, str: Double): Double {

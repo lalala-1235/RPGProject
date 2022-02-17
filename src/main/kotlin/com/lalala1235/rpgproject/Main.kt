@@ -1,6 +1,7 @@
 package com.lalala1235.rpgproject
 
 import com.lalala1235.rpgproject.commands.Test
+import com.lalala1235.rpgproject.commands.TestItem
 import com.lalala1235.rpgproject.event.listeners.EventListeners
 import org.bukkit.Bukkit
 import org.bukkit.plugin.PluginManager
@@ -23,6 +24,7 @@ class Main: JavaPlugin() {
         pm.registerEvents(EventListeners(), this)
 
         getCommand("test")!!.setExecutor(Test())
+        getCommand("testitem")!!.setExecutor(TestItem())
 
         println("RPGPlugin Enabled")
     }

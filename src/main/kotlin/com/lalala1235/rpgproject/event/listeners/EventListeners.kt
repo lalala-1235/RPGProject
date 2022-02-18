@@ -1,5 +1,7 @@
 package com.lalala1235.rpgproject.event.listeners
 
+import org.bukkit.Material
+
 import com.lalala1235.rpgproject.Main
 import com.lalala1235.rpgproject.event.customevent.CustomDamageEvent
 import com.lalala1235.rpgproject.magic.DamageInfo
@@ -13,20 +15,20 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.player.PlayerChangedMainHandEvent
+import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
 class EventListeners: Listener {
     @EventHandler
     fun onDamage(e: EntityDamageByEntityEvent) {
         if(PDCManipulation.getTagString(e.damager, "isCustomMob")=="true") {
+            if(PDCManipulation.getTagString(e.entity, "isCustomPlayer")!="true") return
+
             Main.getPlugin().server.pluginManager.callEvent(
                 CustomDamageEvent(
                     "Custom Damage",
-                    DamageInfo(PDCManipulation.getTagDouble(e.damager, "infoDamage")!!, e.damager, null),
+                    DamageInfo(DamageCalculator.getDamage(PDCManipulation.getTagDouble(e.damager, "infoDamage")!!,0.0, PDCManipulation.getTagDouble(e.entity, "infoDef")!!), e.damager, null),
                     e.damager as LivingEntity,
                     e.entity as LivingEntity)
                 )
@@ -72,34 +74,100 @@ class EventListeners: Listener {
 
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent) {
+        PDCManipulation.setTagDouble(e.player, "infoDef", 0.0)
+        println(PDCManipulation.getTagDouble(e.player, "infoDef"))
+
         if(PDCManipulation.getTagString(e.player, "isCustomPlayer")=="true") return
 
         PDCManipulation.setTagString(e.player, "isCustomPlayer", "true")
         PDCManipulation.setTagDouble(e.player, "infoBaseDamage", 1.0)
         PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
+        PDCManipulation.setTagDouble(e.player, "infoDef", 0.0)
     }
 
     @EventHandler
     fun onPlayerChangeItem(e: PlayerItemHeldEvent) {
-        println("test1111")
+        val item = e.player.inventory.getItem(e.newSlot)
 
-        val item = e.player.inventory.getItem(e.newSlot) ?: return
+        if(item==null) {
+            PDCManipulation.setTagDouble(e.player, "infoBaseDamage", 1.0)
+            PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
+            return
+        }
 
         if(PDCManipulation.getTagString(item, "isCustomItem")!="true") {
-            println("test2222")
             PDCManipulation.setTagDouble(e.player, "infoBaseDamage", 1.0)
             PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
         } else {
-            println(PDCManipulation.getTagDouble(item, "weaponStr"))
-            println(PDCManipulation.getTagDouble(item, "weaponDmg"))
             val str = PDCManipulation.getTagDouble(item, "weaponStr") ?: return
             val dmg = PDCManipulation.getTagDouble(item, "weaponDmg") ?: return
-
-            println("test3333")
 
             PDCManipulation.setTagDouble(e.player, "infoBaseDamage", dmg)
             PDCManipulation.setTagDouble(e.player, "infoStr", 100.0 + str)
         }
 
     }
+
+    @EventHandler
+    fun onPlayerInventoryDragEvent(e: InventoryDragEvent) {
+        if(e.inventory.type != InventoryType.PLAYER) return
+
+        val p = e.viewers[0] ?: return
+
+        val item = p.inventory.itemInMainHand
+
+        if(PDCManipulation.getTagString(item, "isCustomItem")!="true") {
+            PDCManipulation.setTagDouble(p, "infoBaseDamage", 1.0)
+            PDCManipulation.setTagDouble(p, "infoStr", 100.0)
+        } else {
+            println(PDCManipulation.getTagDouble(item, "weaponStr"))
+            println(PDCManipulation.getTagDouble(item, "weaponDmg"))
+            val str = PDCManipulation.getTagDouble(item, "weaponStr") ?: return
+            val dmg = PDCManipulation.getTagDouble(item, "weaponDmg") ?: return
+
+            PDCManipulation.setTagDouble(p, "infoBaseDamage", dmg)
+            PDCManipulation.setTagDouble(p, "infoStr", 100.0 + str)
+        }
+    }
+
+    @EventHandler
+    fun onInventoryClick(e: InventoryClickEvent) {
+        if((e.clickedInventory?.type ?: return) != (InventoryType.PLAYER)) return
+
+        if(e.action==InventoryAction.PICKUP_SOME) {
+            if(e.clickedInventory!!.viewers.isEmpty()) return
+            if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
+
+            val p = e.clickedInventory!!.viewers[0]
+
+            if(p.itemOnCursor.type==Material.AIR) return
+            if(e.slotType!= InventoryType.SlotType.ARMOR) return
+            if(!p.itemOnCursor.hasItemMeta()) return
+
+            if (PDCManipulation.getTagString(p.itemOnCursor, "isCustomItem")!="true") return
+
+            PDCManipulation.setTagDouble(p, "infoDef",
+                (PDCManipulation.getTagDouble(p, "infoDef") ?: return)
+                - (PDCManipulation.getTagDouble(p.itemOnCursor, "armorDef") ?: return))
+        }
+
+        if(e.action==InventoryAction.PLACE_SOME) {
+            if(e.clickedInventory!!.viewers.isEmpty()) return
+            if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
+
+            val p = e.clickedInventory!!.viewers[0]
+
+            if(!p.itemOnCursor.hasItemMeta()) return
+
+            if (PDCManipulation.getTagString(p.itemOnCursor, "isCustomItem")!="true") return
+
+            PDCManipulation.setTagDouble(p, "infoDef",
+                (PDCManipulation.getTagDouble(p, "infoDef") ?: return)
+                        + (PDCManipulation.getTagDouble((p.inventory.getItem(e.slot) ?: return), "armorDef") ?: return))
+        }
+
+
+    }
+
+
 }

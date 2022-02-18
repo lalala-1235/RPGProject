@@ -7,11 +7,11 @@ class DamageCalculator {
         }
 
         fun getDamage(baseDmg: Double, str: Double, def: Double): Double {
-            return (baseDmg * ((0.01 * str) + 1)) * (def / (def + 100))
+            return (baseDmg * ((0.01 * str) + 1)) * (1 - (def / (def + 100)))
         }
 
         fun getDamage(baseDmg: Double, str: Double, def: Double, multiplier: Double): Double {
-            return (baseDmg * ((0.01 * str) + 1)) * (def / (def + 100)) * multiplier
+            return (baseDmg * ((0.01 * str) + 1)) * (1 - (def / (def + 100))) * multiplier
         }
     }
 }

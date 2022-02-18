@@ -26,6 +26,19 @@ class TestItem: CommandExecutor {
 
         sender.inventory.addItem(item)
 
+
+        val item2 = ItemStack(Material.NETHERITE_CHESTPLATE)
+        val meta2 = item2.itemMeta
+
+        meta2!!.lore = listOf(ChatColor.GRAY.toString() + "Defense: 100.0")
+
+        item2.itemMeta = meta2
+
+        item2.itemMeta = PDCManipulation.setTagString(item2, "isCustomItem", "true")
+        item2.itemMeta = PDCManipulation.setTagDouble(item2, "armorDef", 100.0)
+
+        sender.inventory.addItem(item2)
+
         return true
     }
 }

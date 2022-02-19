@@ -132,9 +132,33 @@ class EventListeners: Listener {
 
     @EventHandler
     fun onInventoryClick(e: InventoryClickEvent) {
-        if((e.clickedInventory?.type ?: return) != (InventoryType.PLAYER)) return
+        if(e.clickedInventory==null) return
 
-        if(e.action==InventoryAction.PICKUP_SOME) {
+        if(e.clickedInventory!!.type != InventoryType.PLAYER) return
+
+        if(e.action==InventoryAction.PICKUP_ALL) {
+            if(e.clickedInventory!!.viewers.isEmpty()) return
+            if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
+
+            val p = e.clickedInventory!!.viewers[0]
+
+            if(e.slotType!= InventoryType.SlotType.ARMOR) return
+
+            if(p.inventory.getItem(e.slot)==null) return
+            if(p.inventory.getItem(e.slot)!!.type==Material.AIR) return
+
+            if(!p.inventory.getItem(e.slot)!!.hasItemMeta()) return
+
+            if (PDCManipulation.getTagString(p.inventory.getItem(e.slot)!!, "isCustomItem")!="true") return
+
+            PDCManipulation.setTagDouble(p, "infoDef",
+                (PDCManipulation.getTagDouble(p, "infoDef") ?: return)
+                - (PDCManipulation.getTagDouble(p.inventory.getItem(e.slot)!!, "armorDef") ?: return))
+
+            println(PDCManipulation.getTagDouble(p, "infoDef"))
+        }
+
+        if(e.action==InventoryAction.PLACE_ALL) {
             if(e.clickedInventory!!.viewers.isEmpty()) return
             if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
 
@@ -148,22 +172,8 @@ class EventListeners: Listener {
 
             PDCManipulation.setTagDouble(p, "infoDef",
                 (PDCManipulation.getTagDouble(p, "infoDef") ?: return)
-                - (PDCManipulation.getTagDouble(p.itemOnCursor, "armorDef") ?: return))
-        }
-
-        if(e.action==InventoryAction.PLACE_SOME) {
-            if(e.clickedInventory!!.viewers.isEmpty()) return
-            if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
-
-            val p = e.clickedInventory!!.viewers[0]
-
-            if(!p.itemOnCursor.hasItemMeta()) return
-
-            if (PDCManipulation.getTagString(p.itemOnCursor, "isCustomItem")!="true") return
-
-            PDCManipulation.setTagDouble(p, "infoDef",
-                (PDCManipulation.getTagDouble(p, "infoDef") ?: return)
-                        + (PDCManipulation.getTagDouble((p.inventory.getItem(e.slot) ?: return), "armorDef") ?: return))
+                        + (PDCManipulation.getTagDouble(p.itemOnCursor, "armorDef") ?: return))
+            println(PDCManipulation.getTagDouble(p, "infoDef"))
         }
 
 

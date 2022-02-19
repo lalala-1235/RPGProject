@@ -116,3 +116,5 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij+all
 
 ./build
+/gradle/wrapper/gradle-wrapper.jar
+/gradle/wrapper/gradle-wrapper.properties

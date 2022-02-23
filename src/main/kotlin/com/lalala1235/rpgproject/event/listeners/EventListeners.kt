@@ -3,9 +3,11 @@ package com.lalala1235.rpgproject.event.listeners
 import org.bukkit.Material
 
 import com.lalala1235.rpgproject.Main
+import com.lalala1235.rpgproject.ability.Ability
+import com.lalala1235.rpgproject.ability.AbilityParameter
 import com.lalala1235.rpgproject.event.customevent.CustomDamageEvent
-import com.lalala1235.rpgproject.magic.DamageInfo
-import com.lalala1235.rpgproject.utils.DamageCalculator
+import com.lalala1235.rpgproject.damage.DamageInfo
+import com.lalala1235.rpgproject.damage.DamageCalculator
 import com.lalala1235.rpgproject.utils.PDCManipulation
 import org.bukkit.ChatColor
 import org.bukkit.Location
@@ -14,8 +16,10 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.*
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 
@@ -49,6 +53,10 @@ class EventListeners: Listener {
         }
     }
 
+
+
+
+
     @EventHandler
     fun onCustomDamage(e: CustomDamageEvent) {
         val damageInfo = e.damageInfo
@@ -72,6 +80,10 @@ class EventListeners: Listener {
         }, 30L)
     }
 
+
+
+
+
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent) {
         PDCManipulation.setTagDouble(e.player, "infoDef", 0.0)
@@ -84,6 +96,10 @@ class EventListeners: Listener {
         PDCManipulation.setTagDouble(e.player, "infoStr", 100.0)
         PDCManipulation.setTagDouble(e.player, "infoDef", 0.0)
     }
+
+
+
+
 
     @EventHandler
     fun onPlayerChangeItem(e: PlayerItemHeldEvent) {
@@ -108,6 +124,10 @@ class EventListeners: Listener {
 
     }
 
+
+
+
+
     @EventHandler
     fun onPlayerInventoryDragEvent(e: InventoryDragEvent) {
         if(e.inventory.type != InventoryType.PLAYER) return
@@ -130,13 +150,18 @@ class EventListeners: Listener {
         }
     }
 
+
+
+
+
     @EventHandler
     fun onInventoryClick(e: InventoryClickEvent) {
         if(e.clickedInventory==null) return
 
         if(e.clickedInventory!!.type != InventoryType.PLAYER) return
 
-        if(e.action==InventoryAction.PICKUP_ALL) {
+        //마우스로 클릭해서 가져오기
+        if(e.action==InventoryAction.PICKUP_ALL || e.action==InventoryAction.PICKUP_ONE || e.action==InventoryAction.PICKUP_HALF || e.action==InventoryAction.PICKUP_SOME) {
             if(e.clickedInventory!!.viewers.isEmpty()) return
             if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
 
@@ -158,7 +183,8 @@ class EventListeners: Listener {
             println(PDCManipulation.getTagDouble(p, "infoDef"))
         }
 
-        if(e.action==InventoryAction.PLACE_ALL) {
+        //마우스로 클릭해서 내려놓기
+        if(e.action==InventoryAction.PLACE_ALL || e.action==InventoryAction.PLACE_ONE || e.action==InventoryAction.PLACE_SOME) {
             if(e.clickedInventory!!.viewers.isEmpty()) return
             if(e.clickedInventory!!.viewers[0].type!=EntityType.PLAYER) return
 
@@ -176,7 +202,28 @@ class EventListeners: Listener {
             println(PDCManipulation.getTagDouble(p, "infoDef"))
         }
 
+        //숫자 키를 이용해서 핫바와 스왑
+        /* if(e.action==InventoryAction.HOTBAR_SWAP) {
 
+        } */
+
+    }
+
+
+
+
+    @EventHandler
+    fun onRightClick(e: PlayerInteractEvent) {
+        if(e.action != Action.RIGHT_CLICK_AIR && e.action != Action.RIGHT_CLICK_BLOCK) return
+
+        val abilityName = PDCManipulation.getTagString(e.player.inventory.itemInMainHand, "ability") ?: return
+        val paramInfo = Ability.getParams(abilityName) ?: return
+
+        when(paramInfo) {
+            AbilityParameter.EFFECTED_ENTITY_ONE -> {
+                Ability.executeAbility(abilityName, e.player)
+            }
+        }
     }
 
 

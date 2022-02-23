@@ -1,4 +1,4 @@
-package com.lalala1235.rpgproject.utils
+package com.lalala1235.rpgproject.damage
 
 class DamageCalculator {
     companion object {

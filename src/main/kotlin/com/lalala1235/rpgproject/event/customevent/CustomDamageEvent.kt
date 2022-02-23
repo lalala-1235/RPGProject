@@ -1,6 +1,6 @@
 package com.lalala1235.rpgproject.event.customevent
 
-import com.lalala1235.rpgproject.magic.DamageInfo
+import com.lalala1235.rpgproject.damage.DamageInfo
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList

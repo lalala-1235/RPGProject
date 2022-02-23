@@ -1,7 +1,6 @@
 package com.lalala1235.rpgproject.entity
 
-import com.lalala1235.rpgproject.magic.DamageInfo
-import com.lalala1235.rpgproject.utils.NBTManipulation
+import com.lalala1235.rpgproject.damage.DamageInfo
 import com.lalala1235.rpgproject.utils.PDCManipulation
 import org.bukkit.Location
 import org.bukkit.entity.EntityType

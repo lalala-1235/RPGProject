@@ -1,4 +1,4 @@
-package com.lalala1235.rpgproject.magic
+package com.lalala1235.rpgproject.damage
 
 import org.bukkit.entity.Entity
 import javax.annotation.Nullable

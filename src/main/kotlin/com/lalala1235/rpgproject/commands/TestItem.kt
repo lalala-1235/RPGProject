@@ -23,6 +23,7 @@ class TestItem: CommandExecutor {
         item.itemMeta = PDCManipulation.setTagString(item, "isCustomItem", "true")
         item.itemMeta = PDCManipulation.setTagDouble(item, "weaponStr", 100.0)
         item.itemMeta = PDCManipulation.setTagDouble(item, "weaponDmg", 10.0)
+        item.itemMeta = PDCManipulation.setTagString(item, "ability", "tpup5")
 
         sender.inventory.addItem(item)
 

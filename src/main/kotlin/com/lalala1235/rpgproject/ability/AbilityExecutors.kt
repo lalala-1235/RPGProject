@@ -1,0 +1,3 @@
+package com.lalala1235.rpgproject.ability
+
+interface AbilityExecutors
